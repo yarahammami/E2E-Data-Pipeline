@@ -1,6 +1,8 @@
 from airflow import DAG
 from datetime import datetime, timedelta
 from airflow.operators.bash import BashOperator
+from airflow.operators.python import PythonOperator
+from pre_processing import pre_process
 
 default_args = {
     "owner": "airflow",
@@ -13,3 +15,12 @@ with DAG(dag_id="workflow", default_args=default_args, schedule_interval='@daily
         retries=2,
         retry_delay=timedelta(seconds=15)
     )
+
+    pre_process = PythonOperator(
+        task_id="pre_process",
+        python_callable=pre_process,
+    )
+
+
+check_file >> pre_process
+#docker-compose -f .\docker-compose-LocalExecutor.yml down
